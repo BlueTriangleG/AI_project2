@@ -2,7 +2,10 @@
 # Project Part B: Game Playing Agent
 
 from referee.game import \
-    PlayerColor, Action, SpawnAction, SpreadAction, HexPos, HexDir
+    PlayerColor, Action, SpawnAction, SpreadAction, HexPos, HexDir, Board
+
+from . import game
+from . import MCTS
 
 
 # This is the entry point for your game playing agent. Currently the agent
@@ -17,6 +20,8 @@ class Agent:
         Initialise the agent.
         """
         self._color = color
+        self._state = game.state(color)
+        self._state.print_board()
         match color:
             case PlayerColor.RED:
                 print("Testing: I am playing as red")
@@ -29,10 +34,11 @@ class Agent:
         """
         match self._color:
             case PlayerColor.RED:
-                return SpawnAction(HexPos(3, 3))
+                # use the MCTS to get the action
+                return MCTS.MCTS_search(self._state)
             case PlayerColor.BLUE:
-                # This is going to be invalid... BLUE never spawned!
-                return SpreadAction(HexPos(3, 3), HexDir.Up)
+                # use the MCTS to get the action
+                return MCTS.MCTS_search(self._state)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -40,8 +46,11 @@ class Agent:
         """
         match action:
             case SpawnAction(cell):
+                # update the game
+                self._state.update(action)
                 print(f"Testing: {color} SPAWN at {cell}")
                 pass
             case SpreadAction(cell, direction):
+                self._state.update(action)
                 print(f"Testing: {color} SPREAD from {cell}, {direction}")
                 pass

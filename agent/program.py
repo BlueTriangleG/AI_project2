@@ -21,7 +21,6 @@ class Agent:
         """
         self._color = color
         self._state = game.state(color)
-        self._state.print_board()
         match color:
             case PlayerColor.RED:
                 print("Testing: I am playing as red")

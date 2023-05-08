@@ -22,10 +22,10 @@ class state:
         """
         self._board = Board()
         self._turn = self._board.turn_color
-        self._color = color
+        self.color = color
         self._winner = None
         self._action = None
-        self._action_list = []
+        self._game_over = False
 
     def print_board(self):
         print(self._board.render())
@@ -33,6 +33,9 @@ class state:
     def update(self, action):
         self._board.apply_action(action)
         self._action = action
+        if self._board.game_over:
+            self._game_over = True
+            self._winner = self._board.winner_color
 
     # random action
     def random_action(self):
@@ -42,6 +45,8 @@ class state:
         # get the color
         # get one random available action
         action = random.choice(get_legal_actions(self))
+        # update the board
+        self.update(action)
         return action
 
     def get_board(self):
@@ -49,7 +54,7 @@ class state:
 
     # detect whether the game is over
     def is_terminal(self):
-        return self._board.game_over
+        return self._game_over
 
     # get the winner
     def get_winner(self):
@@ -61,12 +66,11 @@ class state:
             return None
         return self._action
 
-    @property
-    def color(self):
-        return self._color
+    # set up action list
+    # get action list
 
     def __deepcopy__(self, memodict={}):
-        new_state = state(self._color)
+        new_state = state(self.color)
         new_state._board = copy.deepcopy(self._board)
         new_state._turn = self._turn
         new_state._winner = self._winner

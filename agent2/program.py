@@ -5,7 +5,8 @@ from referee.game import \
     PlayerColor, Action, SpawnAction, SpreadAction
 
 from . import game
-from . import MCTS
+from .monte_carlo_tree_search import MCTS
+
 
 
 # This is the entry point for your game playing agent. Currently the agent
@@ -21,6 +22,7 @@ class Agent:
         """
         self._color = color
         self._state = game.state(color)
+        self.tree = MCTS()
         match color:
             case PlayerColor.RED:
                 print("Testing: I am playing as red")
@@ -34,7 +36,10 @@ class Agent:
         match self._color:
             case PlayerColor.RED:
                 # use the MCTS to get the action
-                return MCTS.MCTS_search(self._state)
+                for i in range(100):
+                    self.tree.do_rollout(self._state)
+                action = self.tree.choose(self._state)
+                return action
             case PlayerColor.BLUE:
                 # use the MCTS to get the action
                 return MCTS.MCTS_search(self._state)

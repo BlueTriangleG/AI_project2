@@ -2,7 +2,7 @@ import random
 import math
 from .game import state
 from . import game
-
+import copy
 
 class Node:
     def __init__(self, currState: state, parent=None):
@@ -11,6 +11,8 @@ class Node:
         self.children = []
         self.visits = 0
         self.score = 0
+        self.legal_actions = game.get_legal_actions(self.state)
+        self.action = None
 
     def ucb1(self, c=1.98):
         if self.visits == 0 or self.parent.visits == 0:
@@ -20,13 +22,21 @@ class Node:
         return exploitation + c * exploration
 
     def select_best_child(self):
-        return max(self.children, key=lambda child: child.ucb1())
+        max_ucb1 = -math.inf
+        best_child = None
+        for child in self.children:
+            if child.ucb1() > max_ucb1:
+                max_ucb1 = child.ucb1()
+                best_child = child
+        return best_child
 
     def expand(self):
-        legal_actions = game.get_legal_actions(self.state)
-        action = random.choice(legal_actions)
-        new_state = self.state.update(action)
+        action = random.choice(self.legal_actions)
+        new_state = copy.deepcopy(self.state)
+        new_state.update(action)
         child_Node = Node(new_state, self)
+        # update the action down to this node
+        child_Node.action = action
         self.children.append(child_Node)
         return child_Node
 
@@ -39,11 +49,11 @@ class Node:
         if current_state is not None:
             while not current_state.is_terminal():
                 action = current_state.random_action()
-                current_state = current_state.update(action)
+                current_state.update(action)
             if current_state.get_winner() == self.state.color:
                 return 1
             elif current_state.get_winner() is None:
-                return 0.2
+                return 0
             else:
                 return 0
         return 0
@@ -58,7 +68,7 @@ class Node:
 
     # get last action
     def get_last_action(self):
-        return self.state.get_last_action()
+        return self.action
 
 
 def MCTS_search(Curr_state, iterMax=1000):
@@ -68,6 +78,8 @@ def MCTS_search(Curr_state, iterMax=1000):
         # selection
         current_node = root
         while current_node.children != []:
+            if not current_node.children:
+                break
             current_node = current_node.select_best_child()
         # expansion
         if not current_node.is_terminal():

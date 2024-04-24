@@ -1,0 +1,3 @@
+## Summary:
+This project is about using different types of AI techniques to write an Ai agent in a specific board game. In this project, we create the AI in 3 different ways. 1. just randomly play the game, but follow the rules and can finish a game. 2. Using A* by design create a hierarchy tree. In this algorithm,
+the performance is more dependent on the depth of the search. We choose 5 depths to suit our competition environment. 3. An agent using the MCTS algorithm. A new algorithm, but need to high performance machine, we don't get a good result in it. It is even hard to define the random play.
